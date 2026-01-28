@@ -69,8 +69,11 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="mt-20 text-center text-slate-400 text-sm no-print">
-        <p>Stay focused, you've got this! ✨</p>
+      <footer className="mt-20 text-center text-slate-400 text-sm no-print pb-10">
+        <p className="mb-2">Stay focused, you've got this! ✨</p>
+        <p className="font-semibold text-indigo-600/60 tracking-wider uppercase text-[10px]">
+          Made By Adnan Khan
+        </p>
       </footer>
     </div>
   );
