@@ -1,67 +1,154 @@
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 
 interface Props {
   plan: string;
 }
 
 const PlanDisplay: React.FC<Props> = ({ plan }) => {
+  const planRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Split content by emoji icons used in the Gemini service output
   const sections = plan.split(/(?=📅|⏳|🗓️|🔁|🌱|⚠️|🎯)/g);
 
+  const handleDownloadPDF = async () => {
+    const element = planRef.current;
+    if (!element || isDownloading) return;
+
+    setIsDownloading(true);
+    
+    try {
+      // Configuration to ensure the PDF looks exactly like the UI
+      const opt = {
+        margin: [15, 15, 15, 15],
+        filename: `Study_Routine_${new Date().toLocaleDateString()}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 3, // High resolution
+          useCORS: true, 
+          letterRendering: true,
+          scrollY: 0,
+          windowWidth: element.scrollWidth,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      // @ts-ignore - html2pdf is loaded via CDN in index.html
+      await window.html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error('PDF Generation Error:', error);
+      alert('Failed to generate PDF. Please try using the Print button instead.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {sections.map((section, idx) => {
-        if (!section.trim()) return null;
-        
-        const lines = section.trim().split('\n');
-        const title = lines[0];
-        const content = lines.slice(1);
-
-        return (
-          <div key={idx} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100">
-              <h3 className="text-lg font-bold text-indigo-900 flex items-center gap-2">
-                {title}
-              </h3>
-            </div>
-            <div className="p-6">
-              <div className="prose prose-slate max-w-none font-bangla">
-                {content.map((line, lIdx) => {
-                  const isItem = line.startsWith('-') || line.startsWith('Day');
-                  return (
-                    <p 
-                      key={lIdx} 
-                      className={`mb-2 leading-relaxed transition-colors ${
-                        isItem ? 'font-semibold text-slate-900' : 'text-slate-600'
-                      }`}
-                    >
-                      {line}
-                    </p>
-                  );
-                })}
-              </div>
-            </div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+      {/* Container for PDF Capture - Styled to look like a premium report */}
+      <div 
+        ref={planRef} 
+        className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden font-bangla"
+      >
+        {/* Report Header */}
+        <div className="bg-indigo-600 p-8 text-center text-white">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-4">
+            <i className="fas fa-calendar-check text-xl"></i>
           </div>
-        );
-      })}
+          <h1 className="text-3xl font-bold mb-2">My Personalized Study Plan</h1>
+          <p className="text-indigo-100 opacity-90">Crafted with care by CarePlan Assistant</p>
+          <div className="mt-4 flex justify-center gap-4 text-xs font-medium text-indigo-200">
+            <span><i className="far fa-clock mr-1"></i> {new Date().toLocaleDateString()}</span>
+            <span><i className="far fa-check-circle mr-1"></i> Exam Ready</span>
+          </div>
+        </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 no-print">
+        <div className="p-8 md:p-12 space-y-10">
+          {sections.map((section, idx) => {
+            if (!section.trim()) return null;
+            
+            const lines = section.trim().split('\n');
+            const title = lines[0];
+            const content = lines.slice(1);
+
+            return (
+              <section key={idx} className="break-inside-avoid border-l-4 border-indigo-500 pl-6 py-1">
+                <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
+                  {title}
+                </h3>
+                <div className="prose prose-slate max-w-none">
+                  {content.map((line, lIdx) => {
+                    const isBullet = line.trim().startsWith('-') || line.trim().startsWith('•');
+                    const isDayHeader = line.trim().startsWith('Day') || line.toLowerCase().includes('day ');
+                    
+                    return (
+                      <p 
+                        key={lIdx} 
+                        className={`mb-2 leading-relaxed ${
+                          isDayHeader 
+                            ? 'text-indigo-700 font-bold mt-4 mb-3 text-lg border-b border-indigo-50 pb-1' 
+                            : isBullet 
+                              ? 'text-slate-800 font-medium pl-2' 
+                              : 'text-slate-600'
+                        }`}
+                      >
+                        {line}
+                      </p>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+
+        {/* Footer in PDF */}
+        <div className="p-8 bg-slate-50 border-t border-slate-100 text-center text-slate-400 text-sm">
+          <p>Generated by CarePlan • Your Education, Our Priority</p>
+        </div>
+      </div>
+
+      {/* Action Buttons - Hidden in Print/PDF */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 no-print">
+        <button
+          onClick={handleDownloadPDF}
+          disabled={isDownloading}
+          className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-95 font-bold disabled:opacity-70"
+        >
+          {isDownloading ? (
+            <><i className="fas fa-circle-notch animate-spin"></i> Preparing PDF...</>
+          ) : (
+            <><i className="fas fa-cloud-download-alt text-lg"></i> Download PDF Routine</>
+          )}
+        </button>
         <button
           onClick={() => window.print()}
-          className="flex items-center justify-center gap-2 px-8 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-all shadow-md active:scale-95"
+          className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 bg-slate-800 text-white rounded-2xl hover:bg-slate-900 transition-all shadow-lg active:scale-95 font-bold"
         >
-          <i className="fas fa-print"></i>
-          Print Schedule
+          <i className="fas fa-print text-lg"></i>
+          Print Routine
+        </button>
+        <button
+          onClick={() => window.location.reload()}
+          className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-10 py-4 bg-white text-slate-600 border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all font-bold"
+        >
+          <i className="fas fa-redo-alt"></i>
+          New Plan
         </button>
       </div>
 
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          body { background: white; padding: 0; }
-          .bg-white { box-shadow: none; border: 1px solid #e2e8f0; margin-bottom: 2rem; }
-          .bg-indigo-50 { background: #f8fafc !important; }
-          .max-w-4xl { max-width: 100% !important; }
+          body { background: white !important; padding: 0 !important; margin: 0 !important; }
+          .shadow-xl { box-shadow: none !important; }
+          .rounded-3xl { border-radius: 0 !important; }
+          .border { border: none !important; }
+          .bg-slate-50 { background: white !important; }
+          .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
         }
       `}</style>
     </div>
