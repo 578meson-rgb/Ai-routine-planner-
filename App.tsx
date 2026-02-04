@@ -93,7 +93,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <h2 className="text-xl font-bold text-slate-800 mb-2">Creating Your Plan</h2>
-          <p className="text-slate-500 font-medium animate-pulse text-center px-6 max-w-sm">
+          <p className="text-slate-500 font-medium animate-pulse text-center px-6 max-w-sm h-12">
             {LOADING_MESSAGES[loadingMsgIdx]}
           </p>
           <p className="mt-8 text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
