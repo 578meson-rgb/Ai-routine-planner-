@@ -4,7 +4,7 @@ import { generateStudyPlan } from './services/geminiService';
 import StudyForm from './components/StudyForm';
 import PlanDisplay from './components/PlanDisplay';
 
-// Build Fix: v1.0.7 - Removed conflicting importmap from index.html
+// Build Version: 1.0.8 (Clean environment injection)
 
 const LOADING_MESSAGES = [
   "Analyzing your selected chapters...",
@@ -50,19 +50,26 @@ const App: React.FC = () => {
       if (errorMessage === "API_KEY_MISSING") {
         setError(
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-red-600 font-bold">
+            <div className="flex items-center justify-center gap-2 text-red-600 font-bold text-lg">
               <i className="fas fa-key"></i>
               <span>API Key Required</span>
             </div>
             <p className="text-sm text-slate-600">
-              Please add <b>API_KEY</b> to your Vercel Environment Variables.
+              Your <b>API_KEY</b> environment variable is missing in Vercel. 
             </p>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[11px] text-left font-mono space-y-2">
+              <p>1. Open Vercel Dashboard</p>
+              <p>2. Settings > Environment Variables</p>
+              <p>3. Add Key: <span className="text-red-600">API_KEY</span></p>
+              <p>4. <b>IMPORTANT:</b> Go to Deployments and click <b>Redeploy</b>.</p>
+            </div>
           </div>
         );
       } else {
         setError(
           <div className="space-y-3">
-            <p className="font-bold text-red-600">Request Error</p>
+            <p className="font-bold text-red-600">Something went wrong</p>
+            <p className="text-xs text-slate-500">Error Details:</p>
             <div className="bg-red-50 p-3 rounded-lg border border-red-100 text-[10px] font-mono text-red-800 break-words">
               {errorMessage}
             </div>
@@ -76,20 +83,25 @@ const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen">
-      {/* Loading Overlay with specific "Waiting" text as requested */}
+      {/* Enhanced Loading Overlay - Specifically for user waiting */}
       {loading && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500">
-          <div className="relative mb-10 text-center">
-            <div className="w-20 h-20 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-6"></div>
-            <h2 className="text-2xl font-black text-slate-900 mb-2">Building Your Future</h2>
-            <div className="h-8">
-              <p className="text-indigo-600 font-semibold animate-pulse">
+          <div className="relative mb-10 text-center px-6">
+            <div className="w-24 h-24 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-8 shadow-inner"></div>
+            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Creating Your Masterpiece</h2>
+            <div className="h-10">
+              <p className="text-indigo-600 font-bold text-lg animate-pulse">
                 {LOADING_MESSAGES[loadingMsgIdx]}
               </p>
             </div>
-            <p className="mt-8 text-[10px] uppercase tracking-widest text-slate-400 font-bold">
-              Please wait... this takes about 10 seconds
-            </p>
+            <div className="mt-12 space-y-2">
+              <p className="text-[11px] uppercase tracking-[0.4em] text-slate-400 font-black">
+                Please wait a moment
+              </p>
+              <div className="w-48 h-1 bg-slate-100 mx-auto rounded-full overflow-hidden">
+                <div className="h-full bg-indigo-600 animate-[loading_20s_ease-in-out_infinite]"></div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -113,13 +125,13 @@ const App: React.FC = () => {
           )}
 
           {error && !loading && (
-            <div className="mt-8 p-8 bg-white border border-red-100 rounded-3xl shadow-xl max-w-2xl mx-auto text-center">
+            <div className="mt-8 p-10 bg-white border border-red-100 rounded-[2rem] shadow-2xl shadow-red-50 max-w-2xl mx-auto text-center animate-in zoom-in duration-300">
               {error}
               <button 
                 onClick={() => window.location.reload()}
-                className="mt-6 px-8 py-3 bg-slate-900 text-white text-xs font-bold uppercase rounded-full"
+                className="mt-8 px-10 py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all transform active:scale-95"
               >
-                Retry
+                Try Again
               </button>
             </div>
           )}
@@ -128,9 +140,9 @@ const App: React.FC = () => {
             <div className="space-y-6">
               <button
                 onClick={() => setPlan(null)}
-                className="text-indigo-600 font-semibold hover:text-indigo-800 flex items-center gap-2 no-print"
+                className="text-indigo-600 font-bold hover:text-indigo-800 flex items-center gap-2 no-print px-4 py-2 rounded-xl hover:bg-indigo-50 transition-all"
               >
-                <i className="fas fa-arrow-left"></i> Edit Details
+                <i className="fas fa-arrow-left"></i> Edit My Chapters
               </button>
               <PlanDisplay plan={plan} />
             </div>
@@ -143,6 +155,14 @@ const App: React.FC = () => {
           </p>
         </footer>
       </div>
+
+      <style>{`
+        @keyframes loading {
+          0% { width: 0%; }
+          50% { width: 70%; }
+          100% { width: 100%; }
+        }
+      `}</style>
     </div>
   );
 };
