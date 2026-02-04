@@ -3,7 +3,15 @@ import { GoogleGenAI } from "@google/genai";
 import { StudyRequest } from "../types";
 
 export async function generateStudyPlan(request: StudyRequest): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Accessing the API key injected by Vite during build
+  const apiKey = process.env.API_KEY;
+  
+  // Validation check for deployment environments
+  if (!apiKey || apiKey === "undefined" || apiKey === "") {
+    throw new Error("API_KEY_MISSING");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   
   const subjectsText = request.selectedChapters.map(c => 
     `[${c.subject} - ${c.paper}: ${c.chapterName}]`
@@ -61,10 +69,14 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
     Important: NO AI mentions, NO extra explanations, keep it clear and functional.
   `;
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: prompt,
-  });
-
-  return response.text || "I couldn't build your plan. Try selecting fewer chapters or a later date!";
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+    });
+    return response.text || "I couldn't build your plan. Try selecting fewer chapters or a later date!";
+  } catch (err: any) {
+    console.error("Gemini API Error:", err);
+    throw err;
+  }
 }
