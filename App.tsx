@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { StudyRequest } from './types';
 import { generateStudyPlan } from './services/geminiService';
 import StudyForm from './components/StudyForm';
 import PlanDisplay from './components/PlanDisplay';
 
-// Redeploy Trigger: Version 1.0.4 (Forcing Vercel Build)
+// Redeploy Trigger: Version 1.0.5 (Clean build fixes)
 
 const LOADING_MESSAGES = [
   "Analyzing your selected chapters...",
@@ -24,7 +23,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<React.ReactNode | null>(null);
 
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval>;
     if (loading) {
       interval = setInterval(() => {
         setLoadingMsgIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
@@ -32,7 +31,9 @@ const App: React.FC = () => {
     } else {
       setLoadingMsgIdx(0);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [loading]);
 
   const handleGeneratePlan = async (data: StudyRequest) => {
