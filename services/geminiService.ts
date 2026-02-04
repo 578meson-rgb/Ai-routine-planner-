@@ -2,15 +2,20 @@
 import { GoogleGenAI } from "@google/genai";
 import { StudyRequest } from "../types";
 
+/**
+ * Service to generate a study plan using Google Gemini AI.
+ * Updated to use gemini-3-flash-preview for high performance.
+ */
 export async function generateStudyPlan(request: StudyRequest): Promise<string> {
+  // CRITICAL: Obtain API key from process.env.API_KEY
   const apiKey = process.env.API_KEY;
   
   if (!apiKey || apiKey === "undefined" || apiKey === "") {
     throw new Error("API_KEY_MISSING");
   }
 
-  // Initialize the AI client
-  const ai = new GoogleGenAI({ apiKey });
+  // Initialize strictly according to guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const subjectsText = request.selectedChapters.map(c => 
     `[${c.subject} - ${c.paper}: ${c.chapterName}]`
@@ -72,6 +77,9 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
+      config: {
+        thinkingConfig: { thinkingBudget: 12000 } // Adding reasoning for a "smarter" plan
+      }
     });
     return response.text || "I couldn't build your plan. Try selecting fewer chapters or a later date!";
   } catch (err: any) {
