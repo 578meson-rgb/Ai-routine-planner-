@@ -4,7 +4,7 @@ import { generateStudyPlan } from './services/geminiService';
 import StudyForm from './components/StudyForm';
 import PlanDisplay from './components/PlanDisplay';
 
-// Build Version: 1.1.0 - Full Build System Fix
+// Build Version: 1.1.2 - Syntax & Build Engine Fix
 
 const LOADING_MESSAGES = [
   "Analyzing your selected chapters...",
@@ -52,15 +52,15 @@ const App: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-center gap-2 text-red-600 font-bold text-lg">
               <i className="fas fa-key"></i>
-              <span>API Key Missing in Build</span>
+              <span>API Key Required</span>
             </div>
             <p className="text-sm text-slate-600">
-              The API Key was not detected during the Vercel build process.
+              The API Key was not detected. Please verify your Vercel settings.
             </p>
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[11px] text-left font-mono space-y-2">
               <p className="font-bold text-slate-900">Follow these exact steps:</p>
-              <p>1. Open Vercel > Settings > Environment Variables</p>
-              <p>2. Add Key: <span className="text-red-600">API_KEY</span></p>
+              <p>1. Open Vercel Settings &rarr; Environment Variables</p>
+              <p>2. Add Key: <span className="text-red-600 font-bold">API_KEY</span></p>
               <p>3. Value: [Your Gemini API Key]</p>
               <p>4. <b>Crucial:</b> Go to "Deployments" and click <b>Redeploy</b>.</p>
             </div>
@@ -124,7 +124,7 @@ const App: React.FC = () => {
               {error}
               <button 
                 onClick={() => window.location.reload()}
-                className="mt-8 px-10 py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all"
+                className="mt-8 px-10 py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all shadow-lg active:scale-95"
               >
                 Try Again
               </button>
