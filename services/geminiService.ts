@@ -3,14 +3,13 @@ import { GoogleGenAI } from "@google/genai";
 import { StudyRequest } from "../types";
 
 export async function generateStudyPlan(request: StudyRequest): Promise<string> {
-  // Accessing the API key injected by Vite during build
   const apiKey = process.env.API_KEY;
   
-  // Validation check for deployment environments
   if (!apiKey || apiKey === "undefined" || apiKey === "") {
     throw new Error("API_KEY_MISSING");
   }
 
+  // Initialize the AI client
   const ai = new GoogleGenAI({ apiKey });
   
   const subjectsText = request.selectedChapters.map(c => 
