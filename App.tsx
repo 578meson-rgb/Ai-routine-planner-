@@ -4,7 +4,7 @@ import { generateStudyPlan } from './services/geminiService';
 import StudyForm from './components/StudyForm';
 import PlanDisplay from './components/PlanDisplay';
 
-// Build Version: 1.0.8 (Clean environment injection)
+// Build Version: 1.0.9 (Importmap conflict resolved)
 
 const LOADING_MESSAGES = [
   "Analyzing your selected chapters...",
@@ -85,23 +85,18 @@ const App: React.FC = () => {
     <div className="relative min-h-screen">
       {/* Enhanced Loading Overlay - Specifically for user waiting */}
       {loading && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500">
-          <div className="relative mb-10 text-center px-6">
-            <div className="w-24 h-24 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-8 shadow-inner"></div>
-            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Creating Your Masterpiece</h2>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500 text-center px-6">
+          <div className="relative mb-10">
+            <div className="w-24 h-24 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-8"></div>
+            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Creating Your Plan</h2>
             <div className="h-10">
               <p className="text-indigo-600 font-bold text-lg animate-pulse">
                 {LOADING_MESSAGES[loadingMsgIdx]}
               </p>
             </div>
-            <div className="mt-12 space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.4em] text-slate-400 font-black">
-                Please wait a moment
-              </p>
-              <div className="w-48 h-1 bg-slate-100 mx-auto rounded-full overflow-hidden">
-                <div className="h-full bg-indigo-600 animate-[loading_20s_ease-in-out_infinite]"></div>
-              </div>
-            </div>
+            <p className="mt-8 text-sm font-medium text-slate-500">
+              Please wait while we calculate the best routine for you...
+            </p>
           </div>
         </div>
       )}
@@ -125,11 +120,11 @@ const App: React.FC = () => {
           )}
 
           {error && !loading && (
-            <div className="mt-8 p-10 bg-white border border-red-100 rounded-[2rem] shadow-2xl shadow-red-50 max-w-2xl mx-auto text-center animate-in zoom-in duration-300">
+            <div className="mt-8 p-10 bg-white border border-red-100 rounded-[2rem] shadow-2xl max-w-2xl mx-auto text-center">
               {error}
               <button 
                 onClick={() => window.location.reload()}
-                className="mt-8 px-10 py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all transform active:scale-95"
+                className="mt-8 px-10 py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all"
               >
                 Try Again
               </button>
@@ -155,14 +150,6 @@ const App: React.FC = () => {
           </p>
         </footer>
       </div>
-
-      <style>{`
-        @keyframes loading {
-          0% { width: 0%; }
-          50% { width: 70%; }
-          100% { width: 100%; }
-        }
-      `}</style>
     </div>
   );
 };
