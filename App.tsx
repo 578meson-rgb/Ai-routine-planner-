@@ -4,7 +4,7 @@ import { generateStudyPlan } from './services/geminiService';
 import StudyForm from './components/StudyForm';
 import PlanDisplay from './components/PlanDisplay';
 
-// Build Version: 1.1.2 - Syntax & Build Engine Fix
+// Build Version: 1.1.3 - App Renaming to CarePlanner
 
 const LOADING_MESSAGES = [
   "Analyzing your selected chapters...",
@@ -88,7 +88,7 @@ const App: React.FC = () => {
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500 text-center px-6">
           <div className="relative mb-10">
             <div className="w-24 h-24 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-8 shadow-xl"></div>
-            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">CarePlan is Thinking</h2>
+            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">CarePlanner is Thinking</h2>
             <div className="h-10">
               <p className="text-indigo-600 font-bold text-lg animate-pulse">
                 {LOADING_MESSAGES[loadingMsgIdx]}
@@ -106,7 +106,7 @@ const App: React.FC = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-200 mb-6">
             <i className="fas fa-book-open text-2xl"></i>
           </div>
-          <h1 className="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">CarePlan</h1>
+          <h1 className="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">CarePlanner</h1>
           <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
             Your personal AI study companion. Smart scheduling, zero stress.
           </p>
