@@ -4,7 +4,7 @@ import { generateStudyPlan } from './services/geminiService';
 import StudyForm from './components/StudyForm';
 import PlanDisplay from './components/PlanDisplay';
 
-// Redeploy Trigger: Version 1.0.5 (Clean build fixes)
+// Build Version: 1.0.6 (Fixing deployment conflict)
 
 const LOADING_MESSAGES = [
   "Analyzing your selected chapters...",
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<React.ReactNode | null>(null);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    let interval: any;
     if (loading) {
       interval = setInterval(() => {
         setLoadingMsgIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
