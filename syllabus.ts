@@ -1,4 +1,3 @@
-
 import { SyllabusItem } from './types';
 
 export const SYLLABUS: SyllabusItem[] = [
@@ -28,7 +27,7 @@ export const SYLLABUS: SyllabusItem[] = [
         '৭ম অধ্যায়: বিপরীত ত্রিকোণমিতি ও ত্রিকোণমিতিক',
         '৮ম অধ্যায়: স্থিতিবিদ্যা',
         '৯ম অধ্যায়: সমতলে বস্তুকণার গতি',
-        '১০ম অধ্যায়: যোগজীকরণ'
+        '১০ম অধ্যায়: বিস্তার পরিমাপ ও সম্ভাবনা'
       ]
     }
   },
