@@ -10,51 +10,80 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
 
   const ai = new GoogleGenAI({ apiKey });
   
-  const subjectsText = request.selectedChapters.map(c => 
-    `${c.subject} (${c.paper}): ${c.chapterName}`
-  ).join(', ');
+  // Calculate exact days remaining to prevent AI hallucination of current time
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(request.examDate);
+  target.setHours(0, 0, 0, 0);
+  
+  const diffTime = target.getTime() - today.getTime();
+  const daysRemaining = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  const currentDateStr = today.toDateString();
+
+  // ONLY send the selected chapters to the AI to prevent it from inventing new ones
+  const selectedChaptersList = request.selectedChapters.map(c => c.chapterName).join(', ');
 
   const prompt = `
     You are a professional educational strategist. Create a HIGHLY DETAILED, premium study plan.
     
-    STRICT RULE: Do NOT include any introductory greetings, conversational filler, or sentences like "Greetings, I am CarePlanner" or "Preparing for an exam in...". Start IMMEDIATELY with the first emoji marker.
+    STRICT SYLLABUS (ONLY use these chapters, do NOT add others): 
+    ${selectedChaptersList}
 
-    INPUT:
-    - Syllabus: ${subjectsText}
+    STRICT CONTEXT:
+    - Current Date: ${currentDateStr}
     - Exam Date: ${request.examDate}
-    - Hours: ${request.dailyHours}h/day
+    - TOTAL DAYS AVAILABLE: ${daysRemaining} Days.
+    - Daily Study Commitment: ${request.dailyHours} hours.
     - Confidence: ${request.confidence}
 
+    CRITICAL RULES:
+    1. The routine MUST be exactly ${daysRemaining} days long. 
+    2. Start IMMEDIATELY with the first emoji marker. No introductions.
+    3. ONLY use chapters from the "STRICT SYLLABUS" list above.
+
     STRICT CONTENT SECTIONS (Use these EXACT emojis as markers):
-    📅 Study Duration Overview: [Detailed technical overview of how we will cover the ${request.selectedChapters.length} chapters in the remaining time. Focus on the strategy, not greetings.]
-    
+    📅 Study Duration Overview: 
+    - [Technical overview of the ${daysRemaining}-day roadmap].
+    - [Goal setting for ${request.confidence} confidence level].
+
     ⏳ Smart Time Estimation:
-    For each chapter, provide an estimate like this:
+    (Follow this EXACT format for every chapter from the syllabus):
     - [Chapter Name]: X Hours (Y Days)
     - Revision & Buffers: Z Hours (K Days)
-    (Ensure the total days match the time until ${request.examDate}).
+    (The sum of days must exactly equal ${daysRemaining}).
 
     🗓️ Routine:
-    **Day 1**: [Chapter Name] - Focus on core theory & **Solve CQ**
-    **Day 2**: [Chapter Name] - **Solve MCQ** & High-yield Board Questions
-    [Continue for all days...]
+    **Day 1**: [Chapter Name] - [Short specific action like **Solve CQ**]
+    [Continue for exactly ${daysRemaining} days...]
 
-    🔁 Revision Strategy: [Detailed paragraphs about Active Recall, Spaced Repetition, and Final Mock Test instructions].
-    
-    🔥 Motivation: [A powerful paragraph to inspire the student to push through challenges].
-    
-    🧘 Burnout Prevention: [Specific tips on sleep, hydration, Pomodoro technique, and mental health].
-    
-    ⚠️ Exam Focused Tips: [High-level tips about time management in the exam hall, answer script presentation, and avoiding mistakes].
+    🔁 Revision Strategy: 
+    - [Bullet point 1: Specific Active Recall technique].
+    - [Bullet point 2: Solving Board Questions strategy].
+    - [Bullet point 3: Final Mock Test timing].
 
-    🎯 Final Advice: [1 deep, thoughtful sentence].
+    🔥 Motivation: 
+    - [Powerful bullet point 1].
+    - [Powerful bullet point 2].
+
+    🧘 Burnout Prevention: 
+    - [Tip 1: High-intensity rest periods].
+    - [Tip 2: Physical health/Hydration].
+    - [Tip 3: Mental reset techniques].
+
+    ⚠️ Exam Focused Tips: 
+    - [Hall tip 1: Time management per mark].
+    - [Hall tip 2: Question selection].
+    - [Hall tip 3: Common traps to avoid].
+
+    🎯 Final Advice: 
+    [1 deep, thoughtful sentence].
 
     STRICT FORMATTING:
-    - NO introductory text before the first emoji.
+    - NO introductory text.
     - Use Bengali for Chapter names, English for instructions.
     - Day X must be written as **Day X**.
     - Actions like **Solve CQ** or **Revision** must be bold.
-    - Do NOT add internal sub-topics.
+    - Keep bullet points clean and organized.
   `;
 
   try {
