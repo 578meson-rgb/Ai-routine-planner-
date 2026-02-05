@@ -2,7 +2,6 @@ import { GoogleGenAI } from "@google/genai";
 import { StudyRequest } from "../types";
 
 export async function generateStudyPlan(request: StudyRequest): Promise<string> {
-  // CRITICAL: Obtain API key from process.env.API_KEY injected by Vite define
   const apiKey = process.env.API_KEY;
   
   if (!apiKey || apiKey === "undefined" || apiKey === "" || apiKey === "null") {
@@ -16,31 +15,44 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
   ).join(', ');
 
   const prompt = `
-    You are a caring student study assistant. Create a realistic exam-focused study plan.
+    You are CarePlanner, a world-class educational strategist. Create a HIGHLY DETAILED, premium study plan.
     
-    STUDENT INPUT:
-    - Selected Syllabus: ${subjectsText}
+    INPUT:
+    - Syllabus: ${subjectsText}
     - Exam Date: ${request.examDate}
-    - Daily Study Time: ${request.dailyHours} hours
+    - Hours: ${request.dailyHours}h/day
     - Confidence: ${request.confidence}
 
-    CORE RULES:
-    1. Do NOT overload. Include buffer days for rest.
-    2. Chapters are in Bangla; use their Bengali names in the plan.
-    3. Adjust difficulty based on confidence: ${request.confidence}.
-    4. Prioritize difficult topics early.
-    5. Use supportive, student-friendly English instructions.
+    STRICT CONTENT SECTIONS (Use these emojis as markers):
+    📅 Study Duration Overview: [3-4 detailed sentences about the journey ahead and goal setting].
+    
+    ⏳ Smart Time Estimation:
+    For each chapter in the syllabus, provide an estimate like this:
+    - [Chapter Name]: X Hours (Y Days)
+    - Revision & Buffers: Z Hours (K Days)
+    (Ensure the total days match the time until ${request.examDate}).
 
-    Return the output ONLY in the following format:
-    📅 Study Duration Overview: [content]
-    ⏳ Smart Time Estimation: [content]
-    🗓️ Daily Study Plan: [Day 1... until exam]
-    🔁 Revision Strategy: [content]
-    🌱 Daily Motivation: [content]
-    ⚠️ Burnout Prevention Tips: [content]
-    🎯 Exam-Focused Advice: [content]
+    🗓️ Routine:
+    **Day 1**: [Chapter Name] - Focus on core theory & **Solve CQ**
+    **Day 2**: [Chapter Name] - **Solve MCQ** & High-yield Board Questions
+    [Continue for all days...]
 
-    No AI mentions, no extra talk. Just the plan.
+    🔁 Revision Strategy: [2-3 paragraphs. Include Active Recall, Spaced Repetition, and Final Mock Test instructions].
+    
+    🔥 Motivation: [A powerful, long paragraph to inspire the student to push through challenges].
+    
+    🧘 Burnout Prevention: [4-5 specific tips on sleep, hydration, Pomodoro technique, and mental health].
+    
+    ⚠️ Exam Focused Tips: [5-6 high-level tips about time management in the exam hall, answer script presentation, and avoiding common mistakes].
+
+    🎯 Final Advice: [1 deep, thoughtful sentence].
+
+    STRICT FORMATTING:
+    - Use Bengali for Chapter names, English for instructions.
+    - Day X must be written as **Day X**.
+    - Actions like **Solve CQ** or **Revision** must be bold.
+    - Do NOT add internal sub-topics.
+    - Make the content thick and valuable.
   `;
 
   try {
@@ -48,7 +60,7 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
       model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
-        thinkingConfig: { thinkingBudget: 12000 }
+        thinkingConfig: { thinkingBudget: 4000 }
       }
     });
     return response.text || "I couldn't build your plan. Try selecting fewer chapters!";
