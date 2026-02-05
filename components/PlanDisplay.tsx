@@ -8,8 +8,8 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
   const planRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Split content by emoji icons
-  const sections = plan.split(/(?=📅|⏳|🗓️|🔁|🔥|🧘|⚠️|🎯)/g);
+  // Split content by emoji icons, ensuring we don't have empty strings from the start
+  const sections = plan.split(/(?=📅|⏳|🗓️|🔁|🔥|🧘|⚠️|🎯)/g).filter(s => s.trim().length > 0);
 
   /**
    * Complex Parser for Beautiful Colors & Bold Styles
@@ -36,7 +36,7 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
       }
 
       // 2. Identify Bengali Chapter keywords for coloring
-      // This regex looks for "অধ্যায়" (Chapter) followed by numbers or common chapter naming patterns
+      // This regex identifies both "অধ্যায়" formats and common numbers
       const chapterRegex = /(অধ্যায়\s+[০-৯\d]+|অধ্যায়:?\s+)/g;
       const subParts = part.split(chapterRegex);
 
@@ -59,8 +59,8 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
 
     setIsDownloading(true);
     
-    // Tiny delay to ensure styles are fully computed
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Tiny delay to ensure styles are fully computed and browser has settled
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
       const opt = {
@@ -68,12 +68,12 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
         filename: `CarePlanner_Routine_${new Date().getTime()}.pdf`,
         image: { type: 'jpeg', quality: 1 },
         html2canvas: { 
-          scale: 3, // High resolution for text clarity
+          scale: 3, 
           useCORS: true, 
           letterRendering: true,
           scrollX: 0,
           scrollY: 0,
-          windowWidth: document.documentElement.offsetWidth,
+          windowWidth: 1024, // Consistent width for PDF generation
           backgroundColor: '#ffffff'
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -96,6 +96,7 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
       <div 
         ref={planRef} 
         className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden"
+        style={{ minWidth: '320px' }}
       >
         {/* Header Section */}
         <div className="bg-gradient-to-br from-indigo-600 to-violet-700 p-8 text-center text-white">
@@ -133,11 +134,17 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
                   {titleLine}
                 </h3>
                 
-                <div className={isRoutine ? "grid grid-cols-1 md:grid-cols-2 gap-3" : isEstimation ? "space-y-3 bg-slate-50 p-6 rounded-[2rem] border border-slate-100 shadow-inner" : "space-y-4"}>
+                <div className={
+                  isRoutine 
+                  ? "grid grid-cols-1 md:grid-cols-2 gap-3" 
+                  : isEstimation 
+                    ? "space-y-3 bg-slate-50 p-6 rounded-[2rem] border border-slate-100 shadow-inner" 
+                    : "space-y-4"
+                }>
                   {contentLines.map((line, lIdx) => {
                     const isDayLine = line.toLowerCase().includes('day ');
 
-                    // Specific Card Layout for Routine days (Mobile Optimized)
+                    // Routine Card Layout
                     if (isRoutine && isDayLine) {
                       return (
                         <div key={lIdx} className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-indigo-200 transition-colors">
@@ -148,18 +155,18 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
                       );
                     }
 
-                    // Estimations Section - Matching your image request
+                    // Estimation Row Layout
                     if (isEstimation) {
                       return (
                         <div key={lIdx} className="flex items-center justify-between py-2 border-b border-slate-200/60 last:border-0">
-                          <span className="text-slate-800 font-medium text-[15px]">
+                          <span className="text-slate-800 font-medium text-[15px] w-full">
                             {renderFormattedText(line.trim())}
                           </span>
                         </div>
                       );
                     }
 
-                    // Standard rich text layout
+                    // Standard Content
                     return (
                       <div key={lIdx} className="text-slate-600 text-[15px] leading-relaxed flex items-start gap-3 pl-2">
                         <span className="text-indigo-500 mt-2 flex-shrink-0">
@@ -182,7 +189,7 @@ const PlanDisplay: React.FC<Props> = ({ plan }) => {
         </div>
       </div>
 
-      {/* Action Area - Hidden in Print */}
+      {/* Action Area */}
       <div className="flex flex-col gap-4 no-print pt-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button

@@ -15,19 +15,21 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
   ).join(', ');
 
   const prompt = `
-    You are CarePlanner, a world-class educational strategist. Create a HIGHLY DETAILED, premium study plan.
+    You are a professional educational strategist. Create a HIGHLY DETAILED, premium study plan.
     
+    STRICT RULE: Do NOT include any introductory greetings, conversational filler, or sentences like "Greetings, I am CarePlanner" or "Preparing for an exam in...". Start IMMEDIATELY with the first emoji marker.
+
     INPUT:
     - Syllabus: ${subjectsText}
     - Exam Date: ${request.examDate}
     - Hours: ${request.dailyHours}h/day
     - Confidence: ${request.confidence}
 
-    STRICT CONTENT SECTIONS (Use these emojis as markers):
-    📅 Study Duration Overview: [3-4 detailed sentences about the journey ahead and goal setting].
+    STRICT CONTENT SECTIONS (Use these EXACT emojis as markers):
+    📅 Study Duration Overview: [Detailed technical overview of how we will cover the ${request.selectedChapters.length} chapters in the remaining time. Focus on the strategy, not greetings.]
     
     ⏳ Smart Time Estimation:
-    For each chapter in the syllabus, provide an estimate like this:
+    For each chapter, provide an estimate like this:
     - [Chapter Name]: X Hours (Y Days)
     - Revision & Buffers: Z Hours (K Days)
     (Ensure the total days match the time until ${request.examDate}).
@@ -37,22 +39,22 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
     **Day 2**: [Chapter Name] - **Solve MCQ** & High-yield Board Questions
     [Continue for all days...]
 
-    🔁 Revision Strategy: [2-3 paragraphs. Include Active Recall, Spaced Repetition, and Final Mock Test instructions].
+    🔁 Revision Strategy: [Detailed paragraphs about Active Recall, Spaced Repetition, and Final Mock Test instructions].
     
-    🔥 Motivation: [A powerful, long paragraph to inspire the student to push through challenges].
+    🔥 Motivation: [A powerful paragraph to inspire the student to push through challenges].
     
-    🧘 Burnout Prevention: [4-5 specific tips on sleep, hydration, Pomodoro technique, and mental health].
+    🧘 Burnout Prevention: [Specific tips on sleep, hydration, Pomodoro technique, and mental health].
     
-    ⚠️ Exam Focused Tips: [5-6 high-level tips about time management in the exam hall, answer script presentation, and avoiding common mistakes].
+    ⚠️ Exam Focused Tips: [High-level tips about time management in the exam hall, answer script presentation, and avoiding mistakes].
 
     🎯 Final Advice: [1 deep, thoughtful sentence].
 
     STRICT FORMATTING:
+    - NO introductory text before the first emoji.
     - Use Bengali for Chapter names, English for instructions.
     - Day X must be written as **Day X**.
     - Actions like **Solve CQ** or **Revision** must be bold.
     - Do NOT add internal sub-topics.
-    - Make the content thick and valuable.
   `;
 
   try {
