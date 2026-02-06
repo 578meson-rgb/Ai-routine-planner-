@@ -20,70 +20,68 @@ export async function generateStudyPlan(request: StudyRequest): Promise<string> 
   const daysRemaining = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
   const currentDateStr = today.toDateString();
 
-  // ONLY send the selected chapters to the AI to prevent it from inventing new ones
-  const selectedChaptersList = request.selectedChapters.map(c => c.chapterName).join(', ');
+  // ONLY send the selected chapters to the AI
+  const selectedChaptersList = request.selectedChapters.map(c => 
+    `[${c.subject} - ${c.paper}]: ${c.chapterName}`
+  ).join('\n');
 
   const prompt = `
     You are a professional educational strategist. Create a HIGHLY DETAILED, premium study plan.
     
-    STRICT SYLLABUS (ONLY use these chapters, do NOT add others): 
+    ### STRICT SYLLABUS (ONLY use these chapters): 
     ${selectedChaptersList}
 
-    STRICT CONTEXT:
+    ### CONTEXT:
     - Current Date: ${currentDateStr}
-    - Exam Date: ${request.examDate}
     - TOTAL DAYS AVAILABLE: ${daysRemaining} Days.
     - Daily Study Commitment: ${request.dailyHours} hours.
-    - Confidence: ${request.confidence}
+    - Confidence Level: ${request.confidence}
 
-    CRITICAL RULES:
+    ### EXECUTION RULES:
     1. The routine MUST be exactly ${daysRemaining} days long. 
-    2. Start IMMEDIATELY with the first emoji marker. No introductions.
-    3. ONLY use chapters from the "STRICT SYLLABUS" list above.
+    2. Start IMMEDIATELY with the first emoji marker. No greetings.
+    3. Use Bengali for Chapter names exactly as provided.
 
-    STRICT CONTENT SECTIONS (Use these EXACT emojis as markers):
+    ### ROUTINE FORMATTING RULE (CRITICAL):
+    In the **Routine** section, if a day has multiple chapters, you MUST list each chapter on a NEW line starting with '--'.
+    Example:
+    **Day 1**:
+    -- [Chapter Name 1]
+    -- [Chapter Name 2]
+    - Task: **Solve CQ**
+
+    ### SECTIONS (Use these EXACT emojis):
     📅 Study Duration Overview: 
-    - [Technical overview of the ${daysRemaining}-day roadmap].
-    - [Goal setting for ${request.confidence} confidence level].
+    - [High-level roadmap bullets].
 
     ⏳ Smart Time Estimation:
-    (Follow this EXACT format for every chapter from the syllabus):
     - [Chapter Name]: X Hours (Y Days)
     - Revision & Buffers: Z Hours (K Days)
-    (The sum of days must exactly equal ${daysRemaining}).
 
     🗓️ Routine:
-    **Day 1**: [Chapter Name] - [Short specific action like **Solve CQ**]
-    [Continue for exactly ${daysRemaining} days...]
+    **Day X**:
+    -- [Chapter Name]
+    - Focus: **Specific Action**
+    [Continue for ${daysRemaining} days...]
 
     🔁 Revision Strategy: 
-    - [Bullet point 1: Specific Active Recall technique].
-    - [Bullet point 2: Solving Board Questions strategy].
-    - [Bullet point 3: Final Mock Test timing].
+    - [Strategy bullets].
 
     🔥 Motivation: 
-    - [Powerful bullet point 1].
-    - [Powerful bullet point 2].
+    - [Encouraging bullets].
 
     🧘 Burnout Prevention: 
-    - [Tip 1: High-intensity rest periods].
-    - [Tip 2: Physical health/Hydration].
-    - [Tip 3: Mental reset techniques].
+    - [Well-being bullets].
 
     ⚠️ Exam Focused Tips: 
-    - [Hall tip 1: Time management per mark].
-    - [Hall tip 2: Question selection].
-    - [Hall tip 3: Common traps to avoid].
+    - [Hall management bullets].
 
     🎯 Final Advice: 
     [1 deep, thoughtful sentence].
 
-    STRICT FORMATTING:
-    - NO introductory text.
-    - Use Bengali for Chapter names, English for instructions.
+    ### FORMATTING:
     - Day X must be written as **Day X**.
     - Actions like **Solve CQ** or **Revision** must be bold.
-    - Keep bullet points clean and organized.
   `;
 
   try {
